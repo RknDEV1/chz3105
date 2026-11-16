@@ -169,6 +169,11 @@ struct PatchProjectsView: View {
                             Label(language.text("patch.import"), systemImage: "square.and.arrow.down")
                         }
                         Button {
+                            importBundledPatch()
+                        } label: {
+                            Label(language.text("patch.import_included"), systemImage: "shippingbox")
+                        }
+                        Button {
                             showWallpaperImporter = true
                         } label: {
                             Label(
@@ -301,6 +306,14 @@ struct PatchProjectsView: View {
         guard let request = draftCoordinator.importRequest else { return }
         draftCoordinator.clearImport()
         store.importPackage(from: request.source)
+    }
+
+    private func importBundledPatch() {
+        guard let packageURL = Bundle.main.url(forResource: "chz11", withExtension: "3105") else {
+            store.presentImportError(.unsupportedFormat)
+            return
+        }
+        store.importPackage(at: packageURL)
     }
 
     private func wallpaperRow(_ package: WallpaperStagedPackage) -> some View {

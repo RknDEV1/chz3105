@@ -116,6 +116,7 @@
 "patch.add" = "添加补丁项目";
 "patch.new" = "新建补丁";
 "patch.import" = "导入 .3105";
+"patch.import_included" = "导入随应用附带的补丁";
 "patch.export" = "导出 .3105";
 "patch.edit" = "编辑";
 "patch.empty_title" = "没有补丁项目";

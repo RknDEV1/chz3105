@@ -116,6 +116,7 @@
 "patch.add" = "Add patch project";
 "patch.new" = "New Patch";
 "patch.import" = "Import .3105";
+"patch.import_included" = "Import included patch";
 "patch.export" = "Export .3105";
 "patch.edit" = "Edit";
 "patch.empty_title" = "No Patch Projects";

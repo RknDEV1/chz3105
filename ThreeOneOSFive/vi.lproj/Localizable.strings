@@ -116,6 +116,7 @@
 "patch.add" = "Thêm dự án patch";
 "patch.new" = "Tạo patch";
 "patch.import" = "Nhập .3105";
+"patch.import_included" = "Nhập patch đi kèm";
 "patch.export" = "Xuất .3105";
 "patch.edit" = "Sửa";
 "patch.empty_title" = "Chưa có dự án patch";
