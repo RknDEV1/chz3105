@@ -81,7 +81,8 @@ struct ContentView: View {
                     .tabItem {
                         CompactTabLabel(
                             title: language.text(section.titleKey),
-                            systemImage: section.systemImage
+                            systemImage: section.systemImage,
+                            showsTitle: section != .installed
                         )
                     }
                     .tag(section.rawValue)
@@ -207,9 +208,20 @@ struct ContentView: View {
 private struct CompactTabLabel: View {
     let title: String
     let systemImage: String
+    let showsTitle: Bool
 
     @ViewBuilder
     var body: some View {
+        if showsTitle {
+            tabIcon
+            Text(title)
+        } else {
+            tabIcon.accessibilityLabel(title)
+        }
+    }
+
+    @ViewBuilder
+    private var tabIcon: some View {
         if let image = UIImage(
             systemName: systemImage,
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)

@@ -3,22 +3,31 @@ import UIKit
 
 @main
 struct ThreeOneOSFiveApp: App {
+    private static let portugueseDefaultMigrationKey = "appLanguage.ptBRDefaultMigrated"
     @StateObject private var appState = AppState()
     @StateObject private var patchDraftCoordinator = PatchDraftCoordinator()
     @StateObject private var fileOperationCoordinator = FileOperationCoordinator()
     @StateObject private var patchStore = PatchProjectStore()
     @StateObject private var repositoryStore = PackageRepositoryStore()
-    @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.english.rawValue
+    @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.portugueseBrazilian.rawValue
     @State private var showAttribution = false
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
+        let defaults = UserDefaults.standard
+        if !defaults.bool(forKey: Self.portugueseDefaultMigrationKey) {
+            if defaults.string(forKey: AppLanguage.storageKey) == nil
+                || defaults.string(forKey: AppLanguage.storageKey) == AppLanguage.english.rawValue {
+                defaults.set(AppLanguage.portugueseBrazilian.rawValue, forKey: AppLanguage.storageKey)
+            }
+            defaults.set(true, forKey: Self.portugueseDefaultMigrationKey)
+        }
         setupLogCapture()
         log("app: 3105 launching — iOS \(AppInfo.osVersion) (\(AppInfo.osBuild)) \(AppInfo.machineName)")
     }
 
     private var language: AppLanguage {
-        AppLanguage(rawValue: languageCode) ?? .english
+        AppLanguage(rawValue: languageCode) ?? .portugueseBrazilian
     }
 
     var body: some Scene {

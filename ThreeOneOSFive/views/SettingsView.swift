@@ -4,7 +4,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appLanguage) private var language
     @EnvironmentObject private var appState: AppState
-    @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.english.rawValue
+    @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.portugueseBrazilian.rawValue
     @AppStorage(FeatureVisibility.cleanerStorageKey) private var cleanerEnabled = true
     @AppStorage(FeatureVisibility.developerModeStorageKey)
     private var developerModeEnabled = false
@@ -26,14 +26,13 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 }
 
-                Section(language.text("settings.language")) {
+                Section {
                     Picker(language.text("settings.language"), selection: $languageCode) {
                         ForEach(AppLanguage.allCases) { option in
                             Text(option.displayName).tag(option.rawValue)
                         }
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
+                    .pickerStyle(.menu)
                 }
 
                 Section {
