@@ -84,6 +84,12 @@ Unlisted iOS 27 builds are marked unsupported rather than assumed compatible. Th
 - The target bundle identifier is intentionally `com.apple.mobile.MobileHouseArrest`; changing it can break the MHA-C2 app-container workflow.
 - The source tree does not contain certificates, provisioning profiles, signed applications, or IPA files; release assets may provide an unsigned IPA.
 
+## Build an IPA with GitHub Actions
+
+Open **Actions → Build unsigned IPA → Run workflow** to start a build manually. Pushes to `main` also start the workflow. When it finishes, open the run and download the **`3105-unsigned-ipa`** artifact; it contains `3105-unsigned.ipa` and is retained for 30 days.
+
+The generated IPA is unsigned and is not directly installable on a device. Device use still requires the enterprise signing setup described above.
+
 ## Project layout
 
 ```text
