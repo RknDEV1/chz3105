@@ -50,6 +50,11 @@ struct ContentView: View {
             }
         }
         .tint(AppTheme.accent)
+        .background(AppTheme.pageBackground.ignoresSafeArea())
+        .preferredColorScheme(.dark)
+        .scrollContentBackground(.hidden)
+        .toolbarBackground(AppTheme.pageBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .imageScale(.small)
         .onChange(of: patchDraftCoordinator.request?.id) { requestID in
             if requestID != nil { tabNavigation.select(AppSection.installed.rawValue) }

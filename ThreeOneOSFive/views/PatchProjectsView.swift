@@ -496,7 +496,7 @@ private struct CHZPatchControlView: View {
         return summary.packageID
     }()
 
-    private let accent = Color(red: 0.96, green: 0.12, blue: 0.55)
+    private let accent = AppTheme.accent
 
     private var patchItem: PatchLibraryItem? {
         guard let id = Self.bundledPatchID else { return nil }

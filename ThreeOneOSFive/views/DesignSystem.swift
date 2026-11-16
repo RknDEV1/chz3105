@@ -1,15 +1,9 @@
 import SwiftUI
 
 enum AppTheme {
-    static let accent = Color(
-        uiColor: UIColor { traits in
-            traits.userInterfaceStyle == .dark
-                ? UIColor(red: 1.00, green: 0.64, blue: 0.42, alpha: 1.00)
-                : UIColor(red: 0.85, green: 0.42, blue: 0.20, alpha: 1.00)
-        }
-    )
-    static let pageBackground = Color(uiColor: .systemBackground)
-    static let consoleBackground = Color(uiColor: .secondarySystemBackground)
+    static let accent = Color(red: 0.96, green: 0.12, blue: 0.55)
+    static let pageBackground = Color.black
+    static let consoleBackground = Color(red: 0.065, green: 0.065, blue: 0.075)
     static let pageInset: CGFloat = 16
     static let rowIconSize: CGFloat = 17
     static let rowIconFrame: CGFloat = 28
@@ -30,10 +24,7 @@ struct AppCardBorder: View {
             cornerRadius: AppTheme.contentCardCornerRadius,
             style: .continuous
         )
-        .strokeBorder(
-            Color(uiColor: .separator).opacity(0.22),
-            lineWidth: 0.5
-        )
+        .strokeBorder(AppTheme.accent.opacity(0.18), lineWidth: 0.6)
         .accessibilityHidden(true)
     }
 }
@@ -66,11 +57,12 @@ struct AppSearchField: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppTheme.accent)
                 .accessibilityHidden(true)
 
             TextField(prompt, text: $text)
                 .font(.body)
+                .tint(AppTheme.accent)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .submitLabel(.search)
@@ -81,7 +73,7 @@ struct AppSearchField: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(AppTheme.accent.opacity(0.72))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(clearLabel)

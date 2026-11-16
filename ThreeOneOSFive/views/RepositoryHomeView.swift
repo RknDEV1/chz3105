@@ -27,7 +27,7 @@ struct RepositoryHomeView: View {
                 .padding(.top, 16)
                 .padding(.bottom, 32)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(AppTheme.pageBackground)
             .refreshable {
                 await store.refreshAllAndWait()
                 rebuildFeed()
