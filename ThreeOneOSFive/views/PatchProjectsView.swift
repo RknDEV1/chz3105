@@ -29,6 +29,7 @@ struct PatchProjectsView: View {
     @State private var isImportingWallpapers = false
     @State private var showSimulatedWallpaperDetail = false
     @State private var simulatedWallpaperDetailGate = OneShotPresentationGate()
+    @State private var didCheckBundledPatch = false
     let onOpenSettings: () -> Void
     let onOpenLogs: () -> Void
 
@@ -169,11 +170,6 @@ struct PatchProjectsView: View {
                             Label(language.text("patch.import"), systemImage: "square.and.arrow.down")
                         }
                         Button {
-                            importBundledPatch()
-                        } label: {
-                            Label(language.text("patch.import_included"), systemImage: "shippingbox")
-                        }
-                        Button {
                             showWallpaperImporter = true
                         } label: {
                             Label(
@@ -277,6 +273,7 @@ struct PatchProjectsView: View {
             .onAppear {
                 reloadWallpaperPackages()
                 consumeExternalImport()
+                ensureBundledPatchImported()
 #if targetEnvironment(simulator)
                 if ProcessInfo.processInfo.arguments.contains(
                     "--simulate-wallpaper-detail"
@@ -299,6 +296,9 @@ struct PatchProjectsView: View {
             .onChange(of: draftCoordinator.importRequest?.id) { _ in
                 consumeExternalImport()
             }
+            .onChange(of: store.isBusy) { isBusy in
+                if !isBusy { ensureBundledPatchImported() }
+            }
         }
     }
 
@@ -308,11 +308,25 @@ struct PatchProjectsView: View {
         store.importPackage(from: request.source)
     }
 
-    private func importBundledPatch() {
+    private func ensureBundledPatchImported() {
+        guard !didCheckBundledPatch, !store.isBusy else { return }
         guard let packageURL = Bundle.main.url(forResource: "chz11", withExtension: "3105") else {
+            didCheckBundledPatch = true
+            return
+        }
+        do {
+            let data = try Data(contentsOf: packageURL)
+            let summary = try PatchPackageCodec.inspect(data)
+            guard !store.items.contains(where: { $0.id == summary.packageID }) else {
+                didCheckBundledPatch = true
+                return
+            }
+        } catch {
+            didCheckBundledPatch = true
             store.presentImportError(.unsupportedFormat)
             return
         }
+        didCheckBundledPatch = true
         store.importPackage(at: packageURL)
     }
 
