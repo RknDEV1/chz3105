@@ -43,11 +43,11 @@ struct FeatureVisibility: Equatable {
     }
 
     var visibleSections: [AppSection] {
-        [.home]
+        [.installed]
     }
 
     func isVisible(_ section: AppSection) -> Bool {
-        section == .home
+        section == .installed
     }
 }
 
@@ -56,7 +56,7 @@ struct AppTabNavigationState: Equatable {
     private(set) var filesTabs: FilesTabSession
 
     init(
-        selectedTab: Int = 0,
+        selectedTab: Int = AppSection.installed.rawValue,
         filesNavigationPath: [FileBrowserDestination] = []
     ) {
         self.selectedTab = selectedTab
@@ -84,7 +84,7 @@ struct AppTabNavigationState: Equatable {
     mutating func reconcileSelection(with visibility: FeatureVisibility) {
         guard let selectedSection = AppSection(rawValue: selectedTab),
               visibility.isVisible(selectedSection) else {
-            selectedTab = AppSection.home.rawValue
+            selectedTab = AppSection.installed.rawValue
             return
         }
     }
