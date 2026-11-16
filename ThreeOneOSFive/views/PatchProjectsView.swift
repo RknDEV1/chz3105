@@ -688,7 +688,6 @@ private struct PatchProjectDetailView: View {
     @State private var showApplyConfirmation = false
     @State private var showRestoreConfirmation = false
     @State private var showChangedRestoreConfirmation = false
-    @State private var showResetConfirmation = false
     @State private var restoreChangedPaths: [String] = []
     @State private var isWorking = false
     @State private var actionAlert: PatchStoreAlert?
@@ -833,13 +832,6 @@ private struct PatchProjectDetailView: View {
                     .disabled(isWorking || receipt != nil)
 
                     if receipt != nil {
-                        Button {
-                            showResetConfirmation = true
-                        } label: {
-                            actionLabel("patch.reset", systemImage: "arrow.counterclockwise.circle")
-                        }
-                        .disabled(isWorking)
-
                         Button(role: .destructive) {
                             showRestoreConfirmation = true
                         } label: {
@@ -915,17 +907,7 @@ private struct PatchProjectDetailView: View {
             }
             Button(language.text("common.cancel"), role: .cancel) {}
         } message: {
-            Text(changedRestoreMessage)
-        }
-        .confirmationDialog(
-            language.text("patch.reset_confirm_title"),
-            isPresented: $showResetConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(language.text("patch.reset"), role: .destructive) { resetToAppliedState() }
-            Button(language.text("common.cancel"), role: .cancel) {}
-        } message: {
-            Text(language.text("patch.reset_confirm_message"))
+            Text(language.text("patch.restore_confirm_message"))
         }
         .alert(item: $actionAlert) { alert in
             Alert(
@@ -1164,43 +1146,6 @@ private struct PatchProjectDetailView: View {
                 await MainActor.run {
                     isWorking = false
                     actionAlert = PatchStoreAlert(titleKey: "common.failed", messageKey: "patch.error.restore")
-                }
-            }
-        }
-    }
-
-    private func resetToAppliedState() {
-        guard let receipt, let project = item?.project else { return }
-        isWorking = true
-        Task.detached(priority: .userInitiated) {
-            do {
-                try DevicePatchService.resetToAppliedState(
-                    receipt: receipt,
-                    project: project
-                )
-                await MainActor.run {
-                    isWorking = false
-                    actionAlert = PatchStoreAlert(
-                        titleKey: "common.done",
-                        messageKey: "patch.reset_message"
-                    )
-                }
-            } catch let error as PatchPackageError {
-                await MainActor.run {
-                    isWorking = false
-                    actionAlert = PatchStoreAlert(
-                        titleKey: "common.failed",
-                        messageKey: privateErrorKey(for: error),
-                        messageArgument: privateErrorArgument(for: error)
-                    )
-                }
-            } catch {
-                await MainActor.run {
-                    isWorking = false
-                    actionAlert = PatchStoreAlert(
-                        titleKey: "common.failed",
-                        messageKey: "patch.error.reset"
-                    )
                 }
             }
         }
