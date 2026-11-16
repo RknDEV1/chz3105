@@ -89,217 +89,17 @@ struct PatchProjectsView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                AppSearchField(
-                    text: $searchText,
-                    prompt: language.text("installed.search"),
-                    clearLabel: language.text("common.clear")
-                )
-                Divider()
-                List {
-                    if !hasLocalContent && (store.isBusy || isImportingWallpapers) {
-                        loadingState
-                            .listRowSeparator(.hidden)
-                    } else if !hasLocalContent {
-                        emptyState
-                            .listRowSeparator(.hidden)
-                    } else if !hasSearchResults && !store.isBusy {
-                        searchEmptyState
-                            .listRowSeparator(.hidden)
-                    } else {
-                        if !filteredItems.isEmpty {
-                            Section(language.text("patch.title")) {
-                                ForEach(filteredItems) { item in
-                                    itemRow(item)
-                                }
-                                .onDelete { offsets in
-                                    offsets.map { filteredItems[$0] }.forEach(store.delete)
-                                }
-                            }
-                        }
-                        if !filteredWallpaperPackages.isEmpty {
-                            Section(language.text("tab.wallpapers")) {
-                                ForEach(filteredWallpaperPackages) { package in
-                                    NavigationLink {
-                                        InstalledWallpaperPackageDetailView(
-                                            package: package,
-                                            onApplied: reloadWallpaperPackages
-                                        )
-                                    } label: {
-                                        wallpaperRow(package)
-                                    }
-                                    .swipeActions(
-                                        edge: .trailing,
-                                        allowsFullSwipe: false
-                                    ) {
-                                        Button(role: .destructive) {
-                                            wallpaperPendingDeletion = package
-                                        } label: {
-                                            Label(
-                                                language.text("common.delete"),
-                                                systemImage: "trash"
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if cleanerEnabled {
-                        Section(language.text("repository.utilities")) {
-                            cleanerRow
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-            }
-            .navigationTitle(language.text("tab.installed"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button {
-                            showCreate = true
-                        } label: {
-                            Label(language.text("patch.new"), systemImage: "doc.badge.plus")
-                        }
-                        Button {
-                            showImporter = true
-                        } label: {
-                            Label(language.text("patch.import"), systemImage: "square.and.arrow.down")
-                        }
-                        Button {
-                            showWallpaperImporter = true
-                        } label: {
-                            Label(
-                                language.text("wallpaper.import"),
-                                systemImage: "photo.badge.plus"
-                            )
-                        }
-                    } label: {
-                        if store.isBusy || isImportingWallpapers {
-                            ProgressView()
-                        } else {
-                            Image(systemName: "plus")
-                        }
-                    }
-                    .disabled(store.isBusy || isImportingWallpapers)
-                    .accessibilityLabel(language.text("patch.add"))
-                }
-                AppUtilityToolbar(
-                    language: language,
-                    onOpenSettings: onOpenSettings,
-                    onOpenLogs: onOpenLogs
-                )
-            }
-            .sheet(isPresented: $showImporter) {
-                FileDocumentPicker(
-                    allowedContentTypes: PatchPackagePickerPolicy.allowedContentTypes,
-                    copiesSelectedDocument: PatchPackagePickerPolicy.copiesSelectedDocument,
-                    allowsMultipleSelection: false,
-                    onSelection: { result in
-                        showImporter = false
-                        if case .success(let urls) = result, let url = urls.first {
-                            store.importPackage(at: url)
-                        }
-                    },
-                    onCancel: {
-                        showImporter = false
-                    }
-                )
-                .ignoresSafeArea()
-            }
-            .sheet(isPresented: $showCreate) {
-                PatchProjectEditorView(
-                    existingProject: nil,
-                    passwordIsProtected: false
-                ) { project, password in
-                    store.create(project: project, password: password)
-                }
-            }
-            .sheet(isPresented: $showCleaner) {
-                CleanerView()
-            }
-            .sheet(item: $draftCoordinator.request) { request in
-                PatchProjectEditorView(
-                    existingProject: nil,
-                    passwordIsProtected: false,
-                    initialDraft: request.draft
-                ) { project, password in
-                    store.create(project: project, password: password)
-                    draftCoordinator.clear()
-                }
-            }
-            .sheet(isPresented: $showWallpaperImporter) {
-                FileDocumentPicker(
-                    allowedContentTypes: WallpaperPackagePickerPolicy.allowedContentTypes,
-                    copiesSelectedDocument: true,
-                    allowsMultipleSelection: true,
-                    onSelection: { result in
-                        showWallpaperImporter = false
-                        if case .success(let urls) = result, !urls.isEmpty {
-                            importWallpaperPackages(urls)
-                        }
-                    },
-                    onCancel: {
-                        showWallpaperImporter = false
-                    }
-                )
-                .ignoresSafeArea()
-            }
-            .alert(item: $wallpaperImportFeedback) { feedback in
-                Alert(
-                    title: Text(language.text(feedback.titleKey)),
-                    message: Text(feedback.message),
-                    dismissButton: .default(Text(language.text("common.ok")))
-                )
-            }
-            .alert(item: $wallpaperPendingDeletion) { package in
-                Alert(
-                    title: Text(language.text("wallpaper.delete_title")),
-                    message: Text(language.text(
-                        "wallpaper.delete_message",
-                        package.displayName
-                    )),
-                    primaryButton: .destructive(
-                        Text(language.text("common.delete"))
-                    ) {
-                        deleteWallpaperPackage(package)
-                    },
-                    secondaryButton: .cancel(Text(language.text("common.cancel")))
-                )
-            }
+        CHZPatchControlView(store: store)
             .onAppear {
-                reloadWallpaperPackages()
-                consumeExternalImport()
                 ensureBundledPatchImported()
-#if targetEnvironment(simulator)
-                if ProcessInfo.processInfo.arguments.contains(
-                    "--simulate-wallpaper-detail"
-                ), !wallpaperPackages.isEmpty,
-                   simulatedWallpaperDetailGate.claim() {
-                    DispatchQueue.main.async {
-                        showSimulatedWallpaperDetail = true
-                    }
-                }
-#endif
-            }
-            .navigationDestination(isPresented: $showSimulatedWallpaperDetail) {
-                if let package = wallpaperPackages.first {
-                    InstalledWallpaperPackageDetailView(
-                        package: package,
-                        onApplied: reloadWallpaperPackages
-                    )
-                }
-            }
-            .onChange(of: draftCoordinator.importRequest?.id) { _ in
                 consumeExternalImport()
             }
             .onChange(of: store.isBusy) { isBusy in
                 if !isBusy { ensureBundledPatchImported() }
             }
-        }
+            .onChange(of: draftCoordinator.importRequest?.id) { _ in
+                consumeExternalImport()
+            }
     }
 
     private func consumeExternalImport() {
@@ -676,6 +476,300 @@ private struct PatchStorePresentationModifier: ViewModifier {
 extension View {
     func patchStorePresentation(_ store: PatchProjectStore) -> some View {
         modifier(PatchStorePresentationModifier(store: store))
+    }
+}
+
+private struct CHZPatchControlView: View {
+    @Environment(\.appLanguage) private var language
+    @ObservedObject var store: PatchProjectStore
+    @State private var isWorking = false
+    @State private var showActivateConfirmation = false
+    @State private var showDeactivateConfirmation = false
+    @State private var showChangedRestoreConfirmation = false
+    @State private var changedPaths: [String] = []
+    @State private var actionAlert: PatchStoreAlert?
+
+    private static let bundledPatchID: UUID? = {
+        guard let url = Bundle.main.url(forResource: "chz11", withExtension: "3105"),
+              let data = try? Data(contentsOf: url),
+              let summary = try? PatchPackageCodec.inspect(data) else { return nil }
+        return summary.packageID
+    }()
+
+    private let accent = Color(red: 0.96, green: 0.12, blue: 0.55)
+
+    private var patchItem: PatchLibraryItem? {
+        guard let id = Self.bundledPatchID else { return nil }
+        return store.items.first { $0.id == id }
+    }
+
+    private var receipt: PatchTransactionReceipt? {
+        guard let id = Self.bundledPatchID else { return nil }
+        return DevicePatchService.latestReceipt(projectID: id)
+    }
+
+    private var isActive: Bool { receipt != nil }
+
+    private var changedRestoreMessage: String {
+        let visiblePaths = changedPaths.prefix(5).joined(separator: "\n")
+        return language.text(
+            "patch.restore_changed_message",
+            Int64(changedPaths.count),
+            visiblePaths
+        )
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                Text("CHZ")
+                    .font(.system(size: 30, weight: .black, design: .rounded))
+                    .tracking(4)
+                    .foregroundStyle(accent)
+                    .padding(.top, 18)
+
+                Spacer(minLength: 24)
+
+                VStack(spacing: 14) {
+                    Text(patchItem?.project?.name ?? "Hs Pescoço")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .tracking(1.2)
+                        .foregroundStyle(.white.opacity(0.86))
+                        .padding(.bottom, 4)
+
+                    CHZPatchActionButton(
+                        title: "ATIVAR",
+                        systemImage: "checkmark.shield.fill",
+                        isEnabled: !isActive && !isWorking && !store.isBusy,
+                        accent: accent,
+                        action: requestActivation
+                    )
+
+                    CHZPatchActionButton(
+                        title: "DESATIVAR",
+                        systemImage: "power",
+                        isEnabled: isActive && !isWorking,
+                        accent: accent,
+                        action: { showDeactivateConfirmation = true }
+                    )
+
+                    if isWorking {
+                        ProgressView()
+                            .tint(accent)
+                            .padding(.top, 4)
+                    }
+                }
+                .frame(maxWidth: 360)
+                .frame(maxWidth: .infinity)
+
+                Spacer(minLength: 24)
+            }
+            .padding(.horizontal, 28)
+            .frame(maxWidth: .infinity, minHeight: geometry.size.height)
+            .background(Color.black)
+        }
+        .background(Color.black.ignoresSafeArea())
+        .preferredColorScheme(.dark)
+        .confirmationDialog(
+            language.text("patch.apply_confirm_title"),
+            isPresented: $showActivateConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("ATIVAR") { activate() }
+            Button(language.text("common.cancel"), role: .cancel) {}
+        } message: {
+            Text(language.text("patch.apply_confirm_message"))
+        }
+        .confirmationDialog(
+            language.text("patch.restore_confirm_title"),
+            isPresented: $showDeactivateConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("DESATIVAR", role: .destructive) { inspectAndRestore() }
+            Button(language.text("common.cancel"), role: .cancel) {}
+        } message: {
+            Text(language.text("patch.restore_confirm_message"))
+        }
+        .confirmationDialog(
+            language.text("patch.restore_changed_title"),
+            isPresented: $showChangedRestoreConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(language.text("patch.restore_changed_action"), role: .destructive) {
+                restore(allowChangedTargets: true)
+            }
+            Button(language.text("common.cancel"), role: .cancel) {}
+        } message: {
+            Text(changedRestoreMessage)
+        }
+        .alert(item: $actionAlert) { alert in
+            Alert(
+                title: Text(language.text(alert.titleKey)),
+                message: Text(alert.message(language: language)),
+                dismissButton: .default(Text(language.text("common.ok")))
+            )
+        }
+    }
+
+    private func requestActivation() {
+        guard let item = patchItem else {
+            if let url = Bundle.main.url(forResource: "chz11", withExtension: "3105") {
+                store.importPackage(at: url)
+            }
+            return
+        }
+        guard item.project != nil else {
+            store.requestUnlock(for: item)
+            return
+        }
+        showActivateConfirmation = true
+    }
+
+    private func activate() {
+        guard let item = patchItem, let baseProject = item.project else {
+            requestActivation()
+            return
+        }
+        isWorking = true
+        Task.detached(priority: .userInitiated) {
+            do {
+                let project = item.summary.schemaVersion >= 2 && item.canInspectContents
+                    ? try PatchProjectLibrary.synchronizeWorkspace(item: item)
+                    : baseProject
+                _ = try DevicePatchService.apply(project: project)
+                await MainActor.run {
+                    store.reload()
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.done",
+                        messageKey: "patch.applied_message"
+                    )
+                }
+            } catch let error as PatchPackageError {
+                await MainActor.run {
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.failed",
+                        messageKey: error.localizationKey,
+                        messageArgument: error.localizationArgument
+                    )
+                }
+            } catch {
+                await MainActor.run {
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.failed",
+                        messageKey: "patch.error.apply"
+                    )
+                }
+            }
+        }
+    }
+
+    private func inspectAndRestore() {
+        guard let receipt else { return }
+        isWorking = true
+        Task.detached(priority: .userInitiated) {
+            do {
+                let inspection = try DevicePatchService.inspectRestore(receipt: receipt)
+                if inspection.changedTargets.isEmpty {
+                    try DevicePatchService.restore(receipt: receipt)
+                    await MainActor.run {
+                        isWorking = false
+                        actionAlert = PatchStoreAlert(
+                            titleKey: "common.done",
+                            messageKey: "patch.restored_message"
+                        )
+                    }
+                } else {
+                    await MainActor.run {
+                        isWorking = false
+                        changedPaths = inspection.changedTargets.map(\.displayPath)
+                        showChangedRestoreConfirmation = true
+                    }
+                }
+            } catch let error as PatchPackageError {
+                await MainActor.run {
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.failed",
+                        messageKey: error.localizationKey,
+                        messageArgument: error.localizationArgument
+                    )
+                }
+            } catch {
+                await MainActor.run {
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.failed",
+                        messageKey: "patch.error.restore"
+                    )
+                }
+            }
+        }
+    }
+
+    private func restore(allowChangedTargets: Bool) {
+        guard let receipt else { return }
+        isWorking = true
+        Task.detached(priority: .userInitiated) {
+            do {
+                try DevicePatchService.restore(
+                    receipt: receipt,
+                    allowChangedTargets: allowChangedTargets
+                )
+                await MainActor.run {
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.done",
+                        messageKey: "patch.restored_message"
+                    )
+                }
+            } catch let error as PatchPackageError {
+                await MainActor.run {
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.failed",
+                        messageKey: error.localizationKey,
+                        messageArgument: error.localizationArgument
+                    )
+                }
+            } catch {
+                await MainActor.run {
+                    isWorking = false
+                    actionAlert = PatchStoreAlert(
+                        titleKey: "common.failed",
+                        messageKey: "patch.error.restore"
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct CHZPatchActionButton: View {
+    let title: String
+    let systemImage: String
+    let isEnabled: Bool
+    let accent: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
+                .tracking(0.8)
+                .foregroundStyle(accent.opacity(isEnabled ? 1 : 0.23))
+                .frame(maxWidth: .infinity)
+                .frame(height: 70)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(accent.opacity(isEnabled ? 1 : 0.2), lineWidth: 1.5)
+                }
+                .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
     }
 }
 
