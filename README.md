@@ -88,6 +88,10 @@ Unlisted iOS 27 builds are marked unsupported rather than assumed compatible. Th
 
 Open **Actions → Build unsigned IPA → Run workflow** to start a build manually. Pushes to `main` also start the workflow. When it finishes, open the run and download the **`3105-unsigned-ipa`** artifact; it contains `3105-unsigned.ipa` and is retained for 30 days.
 
+## Build an IPA with Codemagic
+
+Connect this GitHub repository to Codemagic, then start the **iOS unsigned IPA** workflow from the Codemagic app page. When the build finishes, download **`3105-unsigned.ipa`** from the build’s artifacts. The workflow configuration is in the repository-root `codemagic.yaml` file.
+
 The generated IPA is unsigned and is not directly installable on a device. Device use still requires the enterprise signing setup described above.
 
 ## Project layout
