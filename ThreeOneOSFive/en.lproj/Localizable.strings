@@ -209,7 +209,9 @@
 "patch.unlocked_message" = "Unlocked. This device will not ask for this package password again.";
 "patch.workspace_synced_message" = "The patch workspace was synchronized.";
 "patch.applied_message" = "All patch rules were applied and the originals were backed up.";
+"patch.activated_title" = "Patch activated successfully";
 "patch.restored_message" = "The original files were restored.";
+"patch.restored_title" = "Patch restored successfully";
 "patch.reset_message" = "All patch files were reset to the applied package state.";
 "patch.error.unsupported_format" = "This is not a valid .3105 patch package.";
 "patch.error.unsupported_version" = "This patch requires a newer version of 3105. Update the app before importing it.";

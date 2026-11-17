@@ -209,7 +209,9 @@
 "patch.unlocked_message" = "Đã mở khóa. Thiết bị này sẽ không hỏi lại mật khẩu của gói này.";
 "patch.workspace_synced_message" = "Đã đồng bộ workspace của patch.";
 "patch.applied_message" = "Đã áp dụng mọi quy tắc và sao lưu các file gốc.";
+"patch.activated_title" = "Đã kích hoạt patch thành công";
 "patch.restored_message" = "Đã khôi phục các file gốc.";
+"patch.restored_title" = "Đã khôi phục patch thành công";
 "patch.reset_message" = "Đã đặt lại mọi file về trạng thái của gói lúc Apply.";
 "patch.error.unsupported_format" = "Đây không phải là gói patch .3105 hợp lệ.";
 "patch.error.unsupported_version" = "Patch này yêu cầu phiên bản 3105 mới hơn. Hãy cập nhật ứng dụng trước khi nhập.";

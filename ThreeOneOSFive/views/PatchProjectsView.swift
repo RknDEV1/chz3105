@@ -641,7 +641,7 @@ private struct CHZPatchControlView: View {
                     store.reload()
                     isWorking = false
                     actionAlert = PatchStoreAlert(
-                        titleKey: "common.done",
+                        titleKey: "patch.activated_title",
                         messageKey: "patch.applied_message"
                     )
                 }
@@ -677,7 +677,7 @@ private struct CHZPatchControlView: View {
                     await MainActor.run {
                         isWorking = false
                         actionAlert = PatchStoreAlert(
-                            titleKey: "common.done",
+                            titleKey: "patch.restored_title",
                             messageKey: "patch.restored_message"
                         )
                     }
@@ -721,7 +721,7 @@ private struct CHZPatchControlView: View {
                 await MainActor.run {
                     isWorking = false
                     actionAlert = PatchStoreAlert(
-                        titleKey: "common.done",
+                        titleKey: "patch.restored_title",
                         messageKey: "patch.restored_message"
                     )
                 }
@@ -1099,7 +1099,7 @@ private struct PatchProjectDetailView: View {
                 await MainActor.run {
                     store.reload()
                     isWorking = false
-                    actionAlert = PatchStoreAlert(titleKey: "common.done", messageKey: "patch.applied_message")
+                    actionAlert = PatchStoreAlert(titleKey: "patch.activated_title", messageKey: "patch.applied_message")
                 }
             } catch let error as PatchPackageError {
                 await MainActor.run {
@@ -1182,7 +1182,7 @@ private struct PatchProjectDetailView: View {
                     await MainActor.run {
                         isWorking = false
                         actionAlert = PatchStoreAlert(
-                            titleKey: "common.done",
+                            titleKey: "patch.restored_title",
                             messageKey: "patch.restored_message"
                         )
                     }
@@ -1225,7 +1225,7 @@ private struct PatchProjectDetailView: View {
                 )
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = PatchStoreAlert(titleKey: "common.done", messageKey: "patch.restored_message")
+                    actionAlert = PatchStoreAlert(titleKey: "patch.restored_title", messageKey: "patch.restored_message")
                 }
             } catch let error as PatchPackageError {
                 await MainActor.run {

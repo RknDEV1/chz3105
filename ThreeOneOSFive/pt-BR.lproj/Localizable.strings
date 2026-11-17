@@ -209,7 +209,9 @@
 "patch.unlocked_message" = "Desbloqueado. Este dispositivo não pedirá a senha deste pacote novamente.";
 "patch.workspace_synced_message" = "O espaço de trabalho da modificação foi sincronizado.";
 "patch.applied_message" = "Todas as regras da modificação foram aplicadas e foi feito um backup dos originais.";
+"patch.activated_title" = "Patch ativado com sucesso";
 "patch.restored_message" = "Os arquivos originais foram restaurados.";
+"patch.restored_title" = "Patch restaurado com sucesso";
 "patch.reset_message" = "Todos os arquivos da modificação foram redefinidos para o estado do pacote aplicado.";
 "patch.error.unsupported_format" = "Este não é um pacote de modificação .3105 válido.";
 "patch.error.unsupported_version" = "Esta modificação requer uma versão mais recente do 3105. Atualize o app antes de importá-la.";

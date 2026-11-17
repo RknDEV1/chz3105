@@ -209,7 +209,9 @@
 "patch.unlocked_message" = "已解锁。此设备不会再次询问该软件包的密码。";
 "patch.workspace_synced_message" = "补丁工作区已同步。";
 "patch.applied_message" = "所有补丁规则均已应用，原始文件已备份。";
+"patch.activated_title" = "补丁已成功启用";
 "patch.restored_message" = "原始文件已恢复。";
+"patch.restored_title" = "补丁已成功恢复";
 "patch.reset_message" = "所有补丁文件已重置为应用时的软件包状态。";
 "patch.error.unsupported_format" = "这不是有效的 .3105 补丁软件包。";
 "patch.error.unsupported_version" = "此补丁需要更高版本的 3105。请更新应用后再导入。";
