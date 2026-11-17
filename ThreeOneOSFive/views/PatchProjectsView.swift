@@ -89,7 +89,7 @@ struct PatchProjectsView: View {
     }
 
     var body: some View {
-        CHZPatchControlView(store: store)
+        CHZPatchControlView(store: store, onOpenLogs: onOpenLogs)
             .onAppear {
                 ensureBundledPatchImported()
                 consumeExternalImport()
@@ -482,6 +482,7 @@ extension View {
 private struct CHZPatchControlView: View {
     @Environment(\.appLanguage) private var language
     @ObservedObject var store: PatchProjectStore
+    let onOpenLogs: () -> Void
     @State private var isWorking = false
     @State private var showActivateConfirmation = false
     @State private var showDeactivateConfirmation = false
@@ -569,6 +570,20 @@ private struct CHZPatchControlView: View {
             .background(Color.black)
         }
         .background(Color.black.ignoresSafeArea())
+        .overlay(alignment: .topTrailing) {
+            Button(action: onOpenLogs) {
+                Image(systemName: "doc.text")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(accent.opacity(0.78))
+                    .frame(width: 44, height: 44)
+                    .background(accent.opacity(0.08), in: Circle())
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(language.text("logs.title"))
+            .padding(.top, 8)
+            .padding(.trailing, 12)
+        }
         .preferredColorScheme(.dark)
         .confirmationDialog(
             language.text("patch.apply_confirm_title"),
